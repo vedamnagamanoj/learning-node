@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start:dev": "nodemon server.js",
+    "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "author": "Naga Manoj Vedam",
@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mongoose": "^5.13.23",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
@@ -26,5 +27,8 @@
     "eslint-plugin-react": "^7.37.2",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
