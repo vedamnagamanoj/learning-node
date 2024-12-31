@@ -4,7 +4,7 @@ const handleCastErrorDB = (err) =>
   new AppErrors(400, `Invalid ${err.path}: ${err.value}`);
 const handleDuplicateFieldsDB = (err) => {
   const value = err.errmsg.match(/"(.*?)"/)[0];
-  console.log(value);
+  // console.log(value);
   return new AppErrors(
     400,
     `Duplicate Field Value: ${value}. Please use another value!`,
@@ -28,7 +28,7 @@ const sendErrorDev = (err, res) =>
 const sendErrorProd = (err, res) => {
   // console.log(err);
   // Operational, trusted error: send message to client
-  if (err?.isOperationalError) {
+  if (err.isOperationalError) {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -63,7 +63,6 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     // sendErrorProd(err, res);
     let error = { ...err };
-    console.log(error);
 
     if (err.name === 'CastError') error = handleCastErrorDB(err);
     if (err.code === 11000) error = handleDuplicateFieldsDB(err);
