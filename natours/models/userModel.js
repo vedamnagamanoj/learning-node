@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
       message: 'Password do not match',
     },
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -46,6 +51,19 @@ userSchema.pre('save', async function (next) {
   // Hash the paassword with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000; // because changing password in DB sometimes takes much time than issuing the token to login and it may cause login issues
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } });
   next();
 });
 
