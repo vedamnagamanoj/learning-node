@@ -69,7 +69,11 @@ const getAllTours = catchAsync(async (req, res, next) => {
 const getTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   // const tour = await Tour.findOne({ _id: id });
-  const tour = await Tour.findById(id);
+  const tour = await Tour.findById(id).populate('reviews');
+  // const tour = await Tour.findById(id).populate({
+  //   path: 'guides',
+  //   select: '-__v -passwordChangedAt',
+  // }); // populates the "guides" field with data from users by id
   // const tour = await Tour.find({ name: 'The Park Camper' });
 
   if (!tour) {

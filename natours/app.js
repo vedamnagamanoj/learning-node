@@ -11,6 +11,7 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use((req, res, next) => {
 // Mounting routers
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // for all remaing unhandled/unspecified routes and the order of defining the below code matters, it should be at the end of all the routes
 app.all('*', (req, res, next) => {

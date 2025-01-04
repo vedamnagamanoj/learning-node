@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const dotenv = require('dotenv');
 const Tour = require('../../models/tourModel');
-const { deleteTour } = require('../../controllers/tourController');
 
 dotenv.config({ path: './config.env' });
 
@@ -10,6 +9,10 @@ const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD,
 );
+
+// const DB =
+// 'mongodb+srv://vedamnagamanoj:sagHzpiB5gP9y7se@cluster0.llnde.mongodb.net/natours?retryWrites=true&w=majority&appName=Cluster0';
+
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -20,9 +23,7 @@ mongoose
 
 // Reading JSON file
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'),
-);
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 
 // Import data into database
 
