@@ -2,6 +2,8 @@ const User = require('../models/userModel');
 const AppErrors = require('../utils/appErrors');
 const catchAsync = require('../utils/catchAsync');
 
+const handlerFactory = require('./handlerFactory');
+
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach((el) => {
@@ -71,19 +73,10 @@ const getUser = (req, res) => {
     message: 'getUser route not defined',
   });
 };
-const updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'updateUser route not defined',
-  });
-};
 
-const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'deleteUser route not defined',
-  });
-};
+// Do NOT update password with this
+const updateUser = handlerFactory.updateOne(User);
+const deleteUser = handlerFactory.deleteOne(User);
 
 module.exports = {
   getAllUsers,

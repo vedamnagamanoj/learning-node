@@ -1,5 +1,6 @@
 // const fs = require('fs');
 const Tour = require('../models/tourModel');
+const handlerFactory = require('./handlerFactory');
 const ApiFeatures = require('../utils/apiFeatures');
 const AppErrors = require('../utils/appErrors');
 const catchAsync = require('../utils/catchAsync');
@@ -89,72 +90,9 @@ const getTour = catchAsync(async (req, res, next) => {
   });
 });
 
-const createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-
-  res.status(201);
-  res.json({ status: 'success', data: { tour: newTour } });
-});
-
-const updateTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!updateTour) {
-    return next(new AppErrors(404, 'Cannot find the tour with that ID'));
-  }
-
-  res.status(200);
-  res.json({
-    status: 'success',
-    data: {
-      tour: updatedTour,
-    },
-  });
-});
-
-const deleteTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-
-  const deletedTour = await Tour.findByIdAndDelete(id);
-
-  if (!deletedTour) {
-    return next(new AppErrors(404, 'Cannot find the tour with that ID'));
-  }
-
-  res.status(204).json({
-    status: 'success',
-    message: 'Tour deleted successfully',
-  });
-});
-
-// const getCandB = async (req, res) => {
-//   try {
-//     const tours = await Tour.find({
-//       ratingsAverage: { $gte: 4.5 },
-//     })
-//       .sort('-price')
-//       .limit(5)
-//       .select('price name');
-
-//     console.log(tours);
-
-//     res.status(200).json({
-//       status: 'success',
-//       data: {
-//         tours,
-//       },
-//     });
-//   } catch (err) {
-//     res.status(404).json({
-//       status: 'Failed',
-//       message: err.message,
-//     });
-//   }
-// };
+const createTour = handlerFactory.createOne(Tour);
+const updateTour = handlerFactory.updateOne(Tour);
+const deleteTour = handlerFactory.deleteOne(Tour);
 
 const getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
