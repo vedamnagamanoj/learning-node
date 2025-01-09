@@ -1,5 +1,5 @@
-const DEFAULT_PAGE = 1;
-const PAGE_LIMIT = 10;
+// const DEFAULT_PAGE = 1;
+// const PAGE_LIMIT = 20;
 
 module.exports = class {
   // query = Tour.find()
@@ -50,8 +50,10 @@ module.exports = class {
   }
 
   paginate() {
-    const page = +this.queryObj.page || DEFAULT_PAGE;
-    const limit = +this.queryObj.limit || PAGE_LIMIT;
+    // const page = +this.queryObj.page || DEFAULT_PAGE;
+    const page = +this.queryObj.page;
+    // const limit = +this.queryObj.limit || PAGE_LIMIT;
+    const limit = +this.queryObj.limit;
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);

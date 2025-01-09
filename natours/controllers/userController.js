@@ -14,19 +14,11 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 // Users
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
 
-  // const users = await User.find({ active: { $ne: false } });
-
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+const getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
 
 const updateMe = catchAsync(async (req, res, next) => {
   // 1. create error if user POSTs password data
@@ -64,16 +56,12 @@ const deleteMe = catchAsync(async (req, res, next) => {
 const createUser = (req, res) => {
   res.status(500).json({
     status: 'failed',
-    message: 'createUser route not defined',
-  });
-};
-const getUser = (req, res) => {
-  res.status(500).json({
-    status: 'failed',
-    message: 'getUser route not defined',
+    message: 'createUser route not defined! Please use /signup instead',
   });
 };
 
+const getAllUsers = handlerFactory.getAll(User);
+const getUser = handlerFactory.getOne(User);
 // Do NOT update password with this
 const updateUser = handlerFactory.updateOne(User);
 const deleteUser = handlerFactory.deleteOne(User);
@@ -81,6 +69,7 @@ const deleteUser = handlerFactory.deleteOne(User);
 module.exports = {
   getAllUsers,
   createUser,
+  getMe,
   updateMe,
   deleteMe,
   getUser,

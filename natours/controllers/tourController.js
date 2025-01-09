@@ -1,9 +1,8 @@
 // const fs = require('fs');
 const Tour = require('../models/tourModel');
 const handlerFactory = require('./handlerFactory');
-const ApiFeatures = require('../utils/apiFeatures');
-const AppErrors = require('../utils/appErrors');
 const catchAsync = require('../utils/catchAsync');
+const AppErrors = require('../utils/appErrors');
 
 // const simpleTourData = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`, 'utf-8'),
@@ -41,55 +40,34 @@ const aliasTopTours = (req, res, next) => {
   next();
 };
 
-const getAllTours = catchAsync(async (req, res, next) => {
-  // console.log(Tour.find(), req.query);
-  // Execute the query
-  // console.log(req.query);
-  const features = new ApiFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
+// const getAllTours = catchAsync(async (req, res, next) => {
+//   // console.log(Tour.find(), req.query);
+//   // Execute the query
+//   // console.log(req.query);
+//   const features = new ApiFeatures(Tour.find(), req.query)
+//     .filter()
+//     .sort()
+//     .limitFields()
+//     .paginate();
+//   const tours = await features.query;
 
-  // const query = Tour.find()
-  //   .where('duration')
-  //   .equals(5)
-  //   .where('difficulty')
-  //   .equals('easy');
+//   // const query = Tour.find()
+//   //   .where('duration')
+//   //   .equals(5)
+//   //   .where('difficulty')
+//   //   .equals('easy');
 
-  // Send response
-  res.status(200);
-  res.json({
-    status: 'success',
-    results: tours.length,
-    data: { tours },
-  });
-});
+//   // Send response
+//   res.status(200);
+//   res.json({
+//     status: 'success',
+//     results: tours.length,
+//     data: { tours },
+//   });
+// });
 
-const getTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  // const tour = await Tour.findOne({ _id: id });
-  const tour = await Tour.findById(id).populate('reviews');
-  // const tour = await Tour.findById(id).populate({
-  //   path: 'guides',
-  //   select: '-__v -passwordChangedAt',
-  // }); // populates the "guides" field with data from users by id
-  // const tour = await Tour.find({ name: 'The Park Camper' });
-
-  if (!tour) {
-    return next(new AppErrors(404, 'Cannot find the tour with that ID'));
-  }
-
-  res.status(200);
-  res.json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
+const getAllTours = handlerFactory.getAll(Tour);
+const getTour = handlerFactory.getOne(Tour, { path: 'reviews' });
 const createTour = handlerFactory.createOne(Tour);
 const updateTour = handlerFactory.updateOne(Tour);
 const deleteTour = handlerFactory.deleteOne(Tour);
@@ -190,6 +168,74 @@ const getMonthlyPlan = catchAsync(async (req, res, next) => {
   });
 });
 
+// 34.000627,-118.134344 - los angeles
+const getToursWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  const radius = distance / (unit === 'mi' ? 3693.2 : 6378.1);
+
+  if (!lat || !lng) {
+    next(
+      new AppErrors(
+        400,
+        'Please provide latitude and longitude in the format lat,lng',
+      ),
+    );
+  }
+  console.log(distance, lat, lng, unit);
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+});
+
+const getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+  if (!lat || !lng) {
+    next(
+      new AppErrors(
+        400,
+        'Please provide latitude and longitude in the format lat,lng',
+      ),
+    );
+  }
+
+  const distances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: { type: 'Point', coordinates: [+lng, +lat] },
+        distanceField: 'distance',
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      distances,
+    },
+  });
+});
+
 module.exports = {
   getAllTours,
   createTour,
@@ -199,5 +245,7 @@ module.exports = {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistances,
   // getCandB,
 };
