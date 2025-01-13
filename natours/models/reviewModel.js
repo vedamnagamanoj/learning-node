@@ -42,7 +42,7 @@ reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function (next) {
   // this.populate({ path: 'tour', select: 'name' }).populate({
-  //   path: 'user',
+  //   path: 'user',5c88fa8cf4afda39709c2966
   //   select: 'name photo',
   // });
   this.populate({
