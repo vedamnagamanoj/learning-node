@@ -9,8 +9,10 @@ mixin overviewBox(label, text, icon)
     span.overview-box__text= text
 
 block append head
-  script(src="https://unpkg.com/maplibre-gl@^5.0.1/dist/maplibre-gl.js")
-  link(href="https://unpkg.com/maplibre-gl@^5.0.1/dist/maplibre-gl.css" rel="stylesheet")
+  script(src="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.js")
+  link(
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@5.0.1/dist/maplibre-gl.css")
   //- script(src='/js/mapbox.js')
 
 block content

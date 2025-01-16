@@ -2,10 +2,11 @@ const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
+// const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appErrors');
 const globalErrorHandler = require('./controllers/errorController');
@@ -21,9 +22,21 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
-// Global Middlewares
-// set security HTTP headers
-app.use(helmet());
+// // Global Middlewares
+// // set security HTTP headers
+// app.use(helmet());
+
+// // Custom CSP settings with helmet
+// app.use(
+//   helmet.contentSecurityPolicy({
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: ["'self'", 'https://unpkg.com'],
+//       styleSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com'],
+//       // Add other directives as needed
+//     },
+//   }),
+// );
 
 // Development logging
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
@@ -38,6 +51,8 @@ app.use('/api', limiter);
 
 // Body parser, reading data from the body into req.body
 app.use(express.json({ limit: '10kb' })); // body larger than 10kb will not be accepted
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -67,6 +82,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
   req.requestTime = new Date().toLocaleDateString();
   // console.log(req.headers);
+  console.log(req.cookies);
   next();
 });
 
