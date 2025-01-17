@@ -30,14 +30,24 @@ logoutBtn?.addEventListener('click', logout);
 
 userDataForm?.addEventListener('submit', (evnt) => {
   evnt.preventDefault();
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  updateSettings({ name, email }, 'data');
+
+  const formData = new FormData();
+
+  formData.append('name', document.getElementById('name').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('photo', document.getElementById('photo').files[0]);
+
+  console.log(formData);
+
+  // const name = document.getElementById('name').value;
+  // const email = document.getElementById('email').value;
+  // updateSettings({ name, email }, 'data');
+  updateSettings(formData, 'data');
 });
 
 userSettingsForm?.addEventListener('submit', async (evnt) => {
   evnt.preventDefault();
-  document.querySelector('.btn--save-password').textContent = 'Updating...'
+  document.querySelector('.btn--save-password').textContent = 'Updating...';
   const passwordCurrent = document.getElementById('password-current').value;
   const password = document.getElementById('password').value;
   const passwordConfirm = document.getElementById('password-confirm').value;
@@ -45,9 +55,9 @@ userSettingsForm?.addEventListener('submit', async (evnt) => {
     { passwordCurrent, password, passwordConfirm },
     'password',
   );
-  
-  document.getElementById('password-current')= ''
-  document.getElementById('password')= ''
-  document.getElementById('password-confirm') = ''
-  document.querySelector('.btn--save-password').textContent = 'Save Password'
+
+  document.getElementById('password-current').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('password-confirm').value = '';
+  document.querySelector('.btn--save-password').textContent = 'Save Password';
 });

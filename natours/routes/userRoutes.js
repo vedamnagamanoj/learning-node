@@ -1,11 +1,4 @@
 const express = require('express');
-const {
-  getAllUsers,
-  createUser,
-  getUser,
-  deleteUser,
-  updateUser,
-} = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
 
@@ -21,12 +14,24 @@ router.patch('/resetPassword/:token', authController.resetPassword);
 router.use(authController.protect);
 router.patch('/updateMyPassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
-router.patch('/updateMyData', userController.updateMe);
+router.patch(
+  '/updateMyData',
+  userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
+  userController.updateMe,
+);
 router.delete('/deleteMyData', userController.deleteMe);
 
 // restricts all the routes to ADMIN role below this line i.e middleware
 router.use(authController.restrictTo('admin'));
-router.route('/').get(getAllUsers).post(createUser);
-router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+router
+  .route('/')
+  .get(userController.getAllUsers)
+  .post(userController.createUser);
+router
+  .route('/:id')
+  .get(userController.getUser)
+  .patch(userController.updateUser)
+  .delete(userController.deleteUser);
 
 module.exports = router;
