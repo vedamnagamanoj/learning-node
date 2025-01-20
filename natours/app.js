@@ -2,11 +2,13 @@ const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-// const helmet = require('helmet');
+const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const cors = require('cors');
 
 const AppError = require('./utils/appErrors');
 const globalErrorHandler = require('./controllers/errorController');
@@ -17,15 +19,31 @@ const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
+const bookingController = require('./controllers/bookingController');
+
 const app = express();
+app.enable('trust proxy');
 
 // defining the view engine
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // // Global Middlewares
-// // set security HTTP headers
-// app.use(helmet());
+// Implement CORS
+app.use(cors());
+// sets "Access-Control-Allow-Origin" header to *(everything)
+// if we have our api at "api.natours.com" and our frontend app on natours.com we can set
+// but this will work only for simple requests (GET & POST)
+// app.use(cors({
+// origin: 'https://www.natours.com',
+// }));
+// for DELETE, PUT, PATCH request we should also use "options"
+app.options('*', cors());
+// allowing only specific route
+// app.options('/api/v1/tours/:id', cors());
+
+// set security HTTP headers
+app.use(helmet());
 
 // // Custom CSP settings with helmet
 // app.use(
@@ -49,6 +67,13 @@ const limiter = rateLimit({
   message: 'Too many requests form this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
+
+// we need the response coming from the stripe in STREAM form, because in booking router we would have parsed the data to JSON using the express middleware
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout,
+);
 
 // Body parser, reading data from the body into req.body
 app.use(express.json({ limit: '10kb' })); // body larger than 10kb will not be accepted
@@ -74,6 +99,8 @@ app.use(
     ],
   }),
 );
+// used for text compression
+app.use(compression());
 
 // Serving static files
 // app.use(express.static(`${__dirname}/public`));
@@ -90,6 +117,8 @@ app.use((req, res, next) => {
 // Mounting routers
 
 app.use('/', viewRouter);
+// if we want to implement CORS on a specific item
+// app.use('/api/v1/tours', cors(), tourRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);

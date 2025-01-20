@@ -5,6 +5,7 @@ import { login } from './login';
 import { logout } from './logout';
 import { updateSettings } from './updateSettings';
 import { bookTour } from './stripe';
+import { showAlert } from './alerts';
 
 // DOM Elements
 const mapBox = document.getElementById('map');
@@ -39,7 +40,7 @@ userDataForm?.addEventListener('submit', (evnt) => {
   formData.append('email', document.getElementById('email').value);
   formData.append('photo', document.getElementById('photo').files[0]);
 
-  console.log(formData);
+  // console.log(formData);
 
   // const name = document.getElementById('name').value;
   // const email = document.getElementById('email').value;
@@ -69,3 +70,7 @@ bookBtn?.addEventListener('click', (evnt) => {
   const { tourId } = evnt.target.dataset;
   bookTour(tourId);
 });
+
+const alertMessage = document.querySelector('body').dataset['alert'];
+
+if (alertMessage) showAlert('success', alertMessage, 20);

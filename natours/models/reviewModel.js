@@ -89,7 +89,7 @@ reviewSchema.post('save', function () {
 // these functions do not have document middlewares, but instead they have query middleware
 reviewSchema.pre(/^findOneAnd/, async function (next) {
   this.doc = await this.findOne();
-  console.log(this.doc);
+  // console.log(this.doc);
   next();
 });
 
